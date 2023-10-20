@@ -1,4 +1,4 @@
-conversation_ID,emotion_ID,emotion,cause_ID,cause
+conversation_ID,emotion_utterance_ID,emotion,cause_utterance_ID,emotion_cause
 1,3,surprise,1,I realize I am totally naked .
 1,3,surprise,3,"Then I look down , and I realize there is a phone ... there ."
 1,4,surprise,1,I realize I am totally naked .
