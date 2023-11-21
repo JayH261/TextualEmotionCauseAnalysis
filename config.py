@@ -7,21 +7,21 @@ else:
     DEVICE = torch.device("cpu")
     print("running on the CPU")
 
-
 TORCH_SEED = 1024
 TRAIN_FILE = 'fold%s_train.json'
-TEST_FILE  = 'fold%s_test.json'
+TEST_FILE = 'fold%s_test.json'
 DATA_DIR = '.'
 
+
 # Storing all clauses containing sentimental word, based on the ANTUSD lexicon 'opinion_word_simplified.csv'. see https://academiasinicanlplab.github.io
-SENTIMENTAL_CLAUSE_DICT = 'sentimental_clauses.pkl'
+# SENTIMENTAL_CLAUSE_DICT = 'sentimental_clauses.pkl'
 
 
 class Config(object):
     def __init__(self):
-        self.split = 'split10'
-        self.bert_cache_path = 'utils/bert-base-uncased'
-        
+        self.split = "split10"
+        self.bert_cache_path = 'utils/bert-base-cased'
+
         self.feat_dim = 768
 
         self.gnn_dims = '192'
@@ -30,9 +30,10 @@ class Config(object):
         self.pos_emb_dim = 50
         self.pairwise_loss = False
 
-        self.epochs = 10
-        self.lr = 1e-5
-        self.batch_size = 2
+        self.epochs = 50
+        self.lr = 1e-5  # for AdamW
+        self.batch_size = 32
+        self.test_batch_size = 1
         self.gradient_accumulation_steps = 1
         self.dp = 0.1
         self.l2 = 1e-5

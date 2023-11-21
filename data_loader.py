@@ -22,7 +22,7 @@ def build_training_data(configs, fold_id):
 
 def build_inference_data(configs, fold_id, data_type):
     dataset = CustomDataset(configs, fold_id, data_type)
-    data_loader = torch.utils.data.DataLoader(dataset=dataset, batch_size=1,
+    data_loader = torch.utils.data.DataLoader(dataset=dataset, batch_size=configs.test_batch_size,
                                               shuffle=False, collate_fn=bert_batch_preprocessing)
     return data_loader
 
@@ -33,13 +33,9 @@ def get_ecpair(configs, fold_id, data_type):
 class CustomDataset(Dataset):
     def __init__(self, configs, fold_id, data_type, data_dir=DATA_DIR):
         self.data_dir = data_dir
-        self.split = configs.split
-
         self.data_type = data_type
-        self.train_file = join(data_dir, self.split, TRAIN_FILE % fold_id)
-        #print(self.train_file)
-        self.test_file = join(data_dir, self.split, TEST_FILE % fold_id)
-        #print(self.test_file)
+        self.train_file = "./all/train.json"
+        self.test_file = "./all/test.json"
         self.batch_size = configs.batch_size
         self.epochs = configs.epochs
 
@@ -60,7 +56,7 @@ class CustomDataset(Dataset):
         bert_token_idx, bert_clause_idx = self.bert_token_idx_list[idx], self.bert_clause_idx_list[idx]
         bert_segments_idx, bert_token_lens = self.bert_segments_idx_list[idx], self.bert_token_lens_list[idx]
 
-        if len(bert_token_idx[bert_token_idx.index(102)+1:]) > 400:
+        if len(bert_token_idx[bert_token_idx.index(102)+1:]) > 512:
             bert_token_idx, bert_clause_idx, \
             bert_segments_idx, bert_token_lens, \
             doc_couples, y_emotions, y_causes, doc_len = self.token_trunk(bert_token_idx, bert_clause_idx,
@@ -81,10 +77,10 @@ class CustomDataset(Dataset):
         elif data_type == 'test':
             data_file = self.test_file
 
-        doc_id_list = [] # need
+        doc_id_list = []
         doc_len_list = []
         doc_couples_list = []
-        y_emotions_list, y_causes_list = [], [] # need
+        y_emotions_list, y_causes_list = [], []
         bert_token_idx_list = []
         bert_clause_idx_list = []
         bert_segments_idx_list = []
@@ -107,7 +103,6 @@ class CustomDataset(Dataset):
 
             y_emotions, y_causes = [], []
             doc_clauses = doc['clauses']
-            #doc_str = '[CLS] '
             doc_str_1 = ''
             cause_guided = True if len(list(set(doc_causes))) != len(doc_causes) else False
             emotion_index = list(set(doc_emotions))
@@ -144,7 +139,6 @@ class CustomDataset(Dataset):
                 clause = doc_clauses[i]
                 clause_id = clause['clause_id']
                 assert int(clause_id) == i + 1
-                #doc_str += clause['clause'] + ' [SEP] '
                 doc_str_1 +=' [CLS] '+ clause['clause'] + ' [SEP] '
 
             # tokenize utterance text
@@ -163,7 +157,6 @@ class CustomDataset(Dataset):
                     segments_ids.extend([0] * semgent_len)
                 else:
                     segments_ids.extend([1] * semgent_len)
-            #print(indexed_tokens,segments_indices,segments_ids)
             assert len(clause_indices) == doc_len
             assert len(segments_ids) == len(indexed_tokens)
             bert_token_idx_list.append(indexed_tokens)
@@ -197,7 +190,6 @@ class CustomDataset(Dataset):
 
     def token_trunk(self, bert_token_idx, bert_clause_idx, bert_segments_idx, bert_token_lens,
                     doc_couples, y_emotions, y_causes, doc_len):
-        # Cannot handle some extreme cases now
         emotion, cause = doc_couples[0]
         if emotion > doc_len / 2 and cause > doc_len / 2:
             i = 0
@@ -261,7 +253,6 @@ def pad_docs(doc_len_b, y_emotions_b, y_causes_b):
     y_mask_b, y_emotions_b_, y_causes_b_ = [], [], []
     for y_emotions, y_causes in zip(y_emotions_b, y_causes_b):
         y_emotions_ = pad_list(y_emotions, max_doc_len, 0)
-        #print(y_emotions, max_doc_len)
         y_causes_ = pad_list(y_causes, max_doc_len, -1)
         y_mask = list(map(lambda x: 0 if x == -1 else 1, y_causes_))
 
