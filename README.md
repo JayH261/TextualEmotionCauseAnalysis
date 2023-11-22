@@ -1,7 +1,6 @@
 # Textual Emotion Cause Analysis
 
-This repo contains the code of TASLP'2021 paper:
-
+This repo contains our models for the ECPE project, using the the code of TASLP'2021 paper as a foundation:
 A Unified Target-Oriented Sequence-to-Sequence Model for Emotion-Cause Pair Extraction
 
 ## Original dataset
@@ -30,7 +29,7 @@ python main2.py
 - Folder "network" contains model files
     - simple_model.py: UTOS sequence-to-sequence model with BERT encoder and GRU layers for the encoder and decoder
     - modified_model.py: our edited UTOS model
-- data_loader.py originally from UTOS authors but we did some modifications because our data and authors data are different
+- data_loader.py is modified to allow for processing of english datasets
 - preprocess_data jupyter notebook is from us, we created this file to convert English dataset text file to JSON format
 - Folder result contains some of our results after we trained the model under various parameters
     - To view the result file, use view_result.py and change the file path in that file
